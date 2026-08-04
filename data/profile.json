@@ -1,0 +1,17 @@
+{
+    "name": "A.I.R.A.",
+    "projects": [
+        "Artificial Intelligence for Research and Analytics"
+    ],
+    "goals": [],
+    "preferences": [
+        "using Python and has expressed a preference for using the pip package manager to manage dependencies."
+    ],
+    "skills": [],
+    "hardware": {
+        "gpu": "",
+        "ram": "",
+        "cpu": "",
+        "os": ""
+    }
+}

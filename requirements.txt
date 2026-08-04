@@ -1,0 +1,21 @@
+# ==========================
+# A.I.R.A. Core Dependencies
+# ==========================
+
+# LLM & AI
+ollama
+torch
+transformers
+sentence-transformers
+
+# Semantic Memory
+chromadb
+
+# Web Search
+ddgs
+requests
+beautifulsoup4
+lxml
+
+# Data Processing
+numpy
