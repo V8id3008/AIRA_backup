@@ -1,5 +1,6 @@
 import json
 import requests
+import re
 from semantic_memory.memory_db import COLLECTIONS
 
 PROFILE_FILE = "data/profile.json"
@@ -27,22 +28,27 @@ def sync_profile_from_db():
     Retrieves all documents from profile_memory, project_memory, and preference_memory,
     and updates data/profile.json using the LLM to structure them.
     """
-    all_facts = []
+    fact_records = []
     
     for cat in ["profile_memory", "project_memory", "preference_memory"]:
         coll = COLLECTIONS[cat]
         try:
             results = coll.get()
             if results and results.get("documents"):
-                for doc in results["documents"]:
-                    all_facts.append(f"- {doc} (Category: {cat})")
+                metadatas = results.get("metadatas") or []
+                for index, doc in enumerate(results["documents"]):
+                    metadata = metadatas[index] if index < len(metadatas) else {}
+                    timestamp = (metadata or {}).get("timestamp", "")
+                    fact_records.append((timestamp, f"- {doc} (Category: {cat})"))
         except Exception as e:
             print(f"Error fetching from {cat}: {e}")
             
-    if not all_facts:
+    if not fact_records:
         return load_profile()
         
     current_profile = load_profile()
+    fact_records.sort(key=lambda record: record[0], reverse=True)
+    all_facts = [record[1] for record in fact_records]
     facts_str = "\n".join(all_facts)
     
     prompt = f"""
@@ -88,6 +94,32 @@ Merge the new facts into the appropriate fields, resolve contradictions by prior
             res_json = response.json()
             raw_text = res_json.get("response", "").strip()
             updated_profile = json.loads(raw_text)
+
+            # Preserve explicit user-name facts even when the LLM returns a
+            # stale or ambiguous name in the synthesized profile.
+            name_matches = re.findall(
+                r"(?:user(?:'s)?\s+name\s+is|my\s+name\s+is)\s+([^.;\n]+)",
+                facts_str,
+                flags=re.IGNORECASE,
+            )
+            for candidate_name in reversed(name_matches):
+                candidate_name = candidate_name.strip()
+                if candidate_name.upper() in {"A", "A I", "A I R"}:
+                    continue
+                if candidate_name and candidate_name.lower().replace(".", "") not in {"aira", "a i r a"}:
+                    updated_profile["name"] = candidate_name
+                    break
+
+            preference_facts = re.findall(
+                r"-\s*(.+?)\s*\(Category:\s*preference_memory\)",
+                facts_str,
+                flags=re.IGNORECASE,
+            )
+            if preference_facts:
+                existing_preferences = updated_profile.get("preferences", [])
+                updated_profile["preferences"] = list(dict.fromkeys(
+                    preference_facts + [item for item in existing_preferences if item not in preference_facts]
+                ))
             
             # Verify and sanitize hardware fields
             if "hardware" not in updated_profile or not isinstance(updated_profile["hardware"], dict):

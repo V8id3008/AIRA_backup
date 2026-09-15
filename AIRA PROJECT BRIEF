@@ -1,0 +1,437 @@
+# A.I.R.A. Project Plan
+
+> **A.I.R.A.** is being developed as a persistent personal AI: an assistant that selectively learns from conversations, protects the quality of its memory, retrieves useful context when needed, and eventually reasons and acts across applications and devices.
+
+## 1. Project identity
+
+- **Project name:** A.I.R.A.
+- **Project path:** `C:\Users\Pratyush Tyagi\AIRA`
+- **Current working area:** `semantic_memory\`
+- **Known project shape:**
+
+  ```text
+  C:\Users\Pratyush Tyagi\AIRA
+  ├── main.py
+  ├── semantic_memory\
+  │   ├── extractor.py
+  │   ├── validator.py
+  │   ├── memory_db.py
+  │   ├── retriever.py
+  │   └── related memory modules
+  ├── venv\
+  └── ...
+  ```
+
+## 2. Vision
+
+A.I.R.A. should develop from a conversational LLM wrapper into a trustworthy personal agent:
+
+```text
+Conversation
+    ↓
++ Extract meaningful facts
+    ↓
+Validate confidence, importance, provenance, and permanence
+    ↓
+Store safely in semantic memory
+    ↓
+Prevent corruption, weak overwrites, and unsafe deletion
+    ↓
+Retrieve relevant memories
+    ↓
+Reason, plan, and act with grounded context
+    ↓
+Control tools, applications, the OS, and eventually devices
+```
+
+The intended behavior is not “remember everything.” It is:
+
+> **Remember what matters, know how reliable the memory is, avoid temporary noise, and protect stronger memories from being overwritten.**
+
+## 3. Current status at a glance
+
+| Area | Status | Meaning |
+|---|---|---|
+| Core assistant | ✅ Completed foundation | Basic conversational assistant exists |
+| Research engine | ✅ Completed foundation | Research/search capability exists |
+| Memory extraction | ✅ Completed | `extractor.py` reviewed/hardened |
+| Memory validation | ✅ Completed | `validator.py` reviewed/hardened |
+| Memory database | ✅ Completed / hardening completed in working plan | `memory_db.py` is the storage and integrity core |
+| Memory retrieval | 🔄 In progress | `retriever.py` is under strict block-by-block audit |
+| Voice interface | ⏳ Future | Wake word, audio, ASR, and TTS |
+| Coding agent | ⏳ Future | Coding and repository actions |
+| Multi-agent system | ⏳ Future | Specialized collaborating agents |
+| OS / automation | ⏳ Future | Applications, files, devices, and workflows |
+
+## 4. Roadmap and phases
+
+### Phase 1 — Foundation / Core
+
+**Goal:** Establish a working assistant shell.
+
+- Conversation loop and basic response generation.
+- Initial project structure and local runtime.
+- LLM integration and basic prompt/context handling.
+- Clear separation between assistant logic and future tool integrations.
+
+**Status:** ✅ Foundation completed.
+
+### Phase 2 — Intelligence / Research
+
+**Goal:** Give A.I.R.A. reliable information-gathering and reasoning support.
+
+- Research engine and web/search workflow.
+- Source-aware answers and context assembly.
+- Initial task understanding and response planning.
+
+**Status:** ✅ Research foundation completed.
+
+### Phase 3 — Memory system
+
+**Goal:** Make A.I.R.A. selectively remember durable, useful information.
+
+```text
+Conversation
+    ↓
+extractor.py
+    ↓
+validator.py
+    ↓
+memory_db.py / ChromaDB
+    ↓
+retriever.py
+    ↓
+LLM context
+```
+
+- Extract candidate facts from conversations.
+- Reject temporary, weak, irrelevant, duplicate, or assistant-originated facts.
+- Store metadata needed for trust and retrieval.
+- Retrieve relevant memories without flooding the model with context.
+
+**Status:** ✅ Core extraction, validation, and storage are completed; 🔄 retrieval is being finalized.
+
+### Phase 4 — Hardening
+
+**Goal:** Produce a reliable, freeze-ready Memory Core before building higher-level autonomy.
+
+Hardening requirements:
+
+- No avoidable runtime crashes.
+- Defensive validation at module and database boundaries.
+- Correct ChromaDB API usage.
+- Semantic duplicate prevention.
+- Stronger memories cannot be silently downgraded.
+- Deletion is conservative and uses a dedicated deletion threshold.
+- Malformed metadata, `NaN`, infinity, invalid timestamps, and mismatched result arrays fail safely.
+- Error handling preserves the rest of the memory system when one collection fails.
+- Cross-module compatibility among extractor, validator, database, and retriever.
+- Syntax/runtime sanity checks and a final full-file integration audit.
+
+**Status:** 🔄 Active. `extractor.py`, `validator.py`, and `memory_db.py` have been worked through. The remaining active work is the `retriever.py` audit and integration freeze.
+
+### Phase 5 — Advanced Agent / Planner
+
+**Goal:** Make A.I.R.A. reason and act using memory rather than merely storing it.
+
+- Intent and task decomposition.
+- Planning and plan validation.
+- Tool selection and execution boundaries.
+- Short-term task state plus long-term semantic memory.
+- Confirmation gates for consequential actions.
+- Reflection, error recovery, and result verification.
+
+**Status:** ⏳ Future, after Phase 4 is frozen.
+
+### Phase 6 — Computer Agent
+
+**Goal:** Let A.I.R.A. operate a computer safely on the user’s behalf.
+
+- Files and folders.
+- Applications and browser workflows.
+- Coding-agent capabilities.
+- Screen/UI understanding and action verification.
+- Permission-aware, reversible actions and confirmation for destructive steps.
+
+**Status:** ⏳ Future.
+
+### Phase 7 — Personal AI OS
+
+**Goal:** Turn A.I.R.A. into a personal orchestration layer across software and devices.
+
+- Persistent user profile and preferences.
+- Schedules, reminders, automations, and routines.
+- Multi-agent delegation.
+- Phone, speaker, TV, smart-home, and IoT integrations.
+- Voice-first interaction and ambient context.
+- Unified identity, memory, permissions, and audit history.
+
+**Status:** ⏳ Long-term future.
+
+## 5. Current memory architecture
+
+### Memory lifecycle
+
+```text
+User conversation
+      ↓
+Extractor — identifies possible durable facts
+      ↓
+Validator — checks trust, relevance, permanence, and quality
+      ↓
+Memory DB — stores and protects accepted memories
+      ↓
+Retriever — ranks relevant memories for the current query
+      ↓
+A.I.R.A. / LLM — uses selected memories as context
+```
+
+### ChromaDB collections
+
+The current registry contains four logical collections:
+
+| Collection | Intended content |
+|---|---|
+| `profile_memory` | Stable user identity and profile facts |
+| `project_memory` | A.I.R.A. project facts, plans, files, and development state |
+| `preference_memory` | Durable likes, dislikes, preferences, and working style |
+| `research_memory` | Useful research findings and durable knowledge |
+
+Each memory is expected to carry, at minimum:
+
+```text
+id
+text
+importance
+confidence
+source
+timestamp
+```
+
+The storage layer also owns policies for semantic duplicate detection, safe updates, conservative deletion, and health checks.
+
+### Module responsibilities
+
+| File | Responsibility | Status |
+|---|---|---|
+| `extractor.py` | Extract meaningful long-term facts from conversation | ✅ Completed |
+| `validator.py` | Decide whether a candidate is trustworthy enough to store | ✅ Completed |
+| `memory_db.py` | Store, update, search, inspect, and safely delete memories in ChromaDB | ✅ Completed in the current hardening pass |
+| `retriever.py` | Retrieve and rank the most relevant memories for new context | 🔄 Debugging / not frozen |
+| `profile_manager.py` | Keep structured profile information synchronized | ⏳ Planned integration |
+| `memory_manager.py` and related modules | Coordinate extraction → validation → storage → retrieval | ⏳ Planned integration |
+
+## 6. Phase 4 hardening status
+
+### Completed files
+
+#### `extractor.py` — ✅
+
+Purpose: identify candidate durable facts rather than treating every conversational sentence as memory.
+
+#### `validator.py` — ✅
+
+Purpose: prevent weak, temporary, irrelevant, duplicate, malformed, or assistant-related content from entering long-term memory.
+
+#### `memory_db.py` — ✅ working-plan completion
+
+Purpose: provide the defensive persistence layer. The hardening work covered validation, semantic duplicate checks, safe update behavior, conservative semantic deletion, collection-level error isolation, full-memory inspection, duplicate health checks, and low-confidence health checks.
+
+Important safeguards established during the audit:
+
+- Use `DELETE_DISTANCE_THRESHOLD` for deletion rather than the duplicate threshold.
+- Reject invalid, negative, or non-finite deletion thresholds.
+- Treat malformed or non-finite confidence as invalid/low confidence.
+- Keep destructive deletion behind a strict semantic-distance safety gate.
+- Continue checking other collections when one collection fails.
+
+### `retriever.py` — 🔄 active debugging
+
+The retriever is being audited in 25 logical blocks. Review has reached the later query, scoring, and candidate-construction blocks, with the final integration audit still required.
+
+Known issues that must be resolved before freeze:
+
+- Missing or invalid timestamps must not become “now”; that artificially boosts old/corrupt memories through recency scoring.
+- Invalid timestamps should be represented explicitly, such as `None`, and handled by the recency policy.
+- `limit` and ranking weights need input validation.
+- Distances and metadata need finite/range validation.
+- ChromaDB result arrays (`ids`, `documents`, `metadatas`, `distances`) need alignment checks.
+- Relevance scoring must match the collection’s actual distance metric; `1.0 - distance` must not be assumed universally.
+- Importance values must be defensively normalized.
+- Candidate ranking must preserve enough metadata for explainability and provenance.
+- The final output must respect both top-K and cumulative character limits.
+
+The good parts already identified include per-collection error isolation, cross-collection search, exact-text deduplication in retrieval, composite relevance/importance/recency ranking, and bounded context output.
+
+## 7. Strict Debug Mode workflow
+
+Debug Mode means the existing code is not assumed correct merely because it runs. Each section is isolated, reviewed, rated, and frozen only when its dependencies are safe.
+
+### Workflow
+
+```text
+1. Paste one logical block with an in-code separator.
+2. Check syntax and runtime behavior.
+3. Check architecture and module boundaries.
+4. Check data integrity and malformed-input behavior.
+5. Check error handling and safe failure.
+6. Check security/safety, especially destructive operations.
+7. Check performance, scalability, maintainability, and integration.
+8. Rate the block and identify 🔴 critical, 🟠 important, and 🟡 recommended work.
+9. Do not freeze a block while an upstream dependency is unresolved.
+10. Run a full-file integration audit after all blocks.
+11. Run syntax/runtime sanity checks.
+12. Freeze the file only after critical and material issues are resolved.
+```
+
+### Windows environment commands
+
+From the project directory:
+
+```powershell
+cd "C:\Users\Pratyush Tyagi\AIRA"
+.\venv\Scripts\Activate.ps1
+```
+
+Syntax checks:
+
+```powershell
+python -m py_compile .\semantic_memory\extractor.py
+python -m py_compile .\semantic_memory\validator.py
+python -m py_compile .\semantic_memory\memory_db.py
+python -m py_compile .\semantic_memory\retriever.py
+```
+
+Recommended import smoke checks after the files are available:
+
+```powershell
+python -c "from semantic_memory import extractor, validator, memory_db, retriever; print('A.I.R.A. memory imports OK')"
+```
+
+If the project has a test suite, run it from the activated environment:
+
+```powershell
+python -m pytest
+```
+
+Do not treat a passing syntax check as a completed audit. It confirms parsing, not ranking correctness, data integrity, or safe behavior.
+
+## 8. Google-Assistant-like reference architecture mapped to A.I.R.A.
+
+The reference model is a pipeline, not a single LLM:
+
+```text
+Wake word
+    ↓
+Audio processing
+    ↓
+ASR (speech → text)
+    ↓
+NLU (what does the user mean?)
+    ↓
+Dialog manager / agent orchestration
+    ↓
+Context & state / memory
+    ↓
+Search, APIs, apps, coding agent, automation
+    ↓
+Response generation
+    ↓
+TTS (text → speech)
+    ↓
+Device / OS layer
+```
+
+Mapping to A.I.R.A.:
+
+| Reference layer | A.I.R.A. equivalent | Status |
+|---|---|---|
+| Wake-word detection | Future voice interface | ⏳ |
+| Audio processing | Future voice layer | ⏳ |
+| ASR | Speech-to-text input | ⏳ |
+| NLU | Intent and task understanding | ⏳ |
+| Dialog manager | Agent orchestration and planner | ⏳ |
+| Context and state | **Current memory system** | 🔄 |
+| Search / APIs / apps | Research engine, tools, OS integrations | ✅ / ⏳ |
+| Response generation | LLM and response layer | ✅ |
+| TTS | Future voice output | ⏳ |
+| Device layer | Future computer, OS, and IoT control | ⏳ |
+
+The current work belongs primarily to **Context & State → Memory**:
+
+```text
+extractor
+    ↓
+validator
+    ↓
+memory_db
+    ↓
+retriever
+    ↓
+LLM context
+```
+
+This reference architecture should guide future design without being treated as A.I.R.A.’s final architecture. Layers may later be combined, split, or expanded.
+
+## 9. Project environment, models, and hardware
+
+The established environment is a local Windows development setup:
+
+- **Operating system:** Windows.
+- **Project runtime:** Python virtual environment at `C:\Users\Pratyush Tyagi\AIRA\venv`.
+- **Memory backend:** Local ChromaDB through `semantic_memory\memory_db.py`.
+- **Current scale:** Local, four-collection semantic memory store; optimize only when profiling shows a real need.
+- **Model role:** The LLM handles conversation, reasoning, response generation, and eventually planning; it is one component inside the larger assistant pipeline.
+- **Research role:** The research engine supplies external information when memory alone is insufficient.
+- **Hardware role:** Current work is software-first. Microphone, speakers, phone, smart-home, and IoT hardware belong to the future voice/device phases.
+
+The exact model names, embedding model, GPU/CPU configuration, and device inventory were not specified in the referenced conversation and should be recorded here when finalized rather than guessed.
+
+## 10. Clear next steps
+
+### Immediate — finish `retriever.py`
+
+1. Continue the block audit from the current review position.
+2. Fix timestamp semantics so missing/invalid timestamps cannot receive maximum recency.
+3. Validate `limit`, weights, distances, importance, and result-array alignment.
+4. Confirm the actual ChromaDB distance metric and use a compatible relevance function.
+5. Complete sorting, truncation, output-limit, return, and integration blocks.
+6. Run the full `retriever.py` integration audit against `memory_db.py`, `validator.py`, and `extractor.py`.
+
+### Then — freeze the memory core
+
+7. Run syntax checks and import smoke checks for all four memory modules.
+8. Run tests or focused behavior checks for extraction, validation, storage, duplicate prevention, deletion safety, retrieval ranking, timestamp handling, and malformed metadata.
+9. Record the final memory schema and collection registry in project documentation.
+10. Mark Phase 4 complete only after the full pipeline is verified end to end.
+
+### After Phase 4 — build the agent layer
+
+11. Add a stable context-assembly interface from retriever → LLM.
+12. Build intent handling, task decomposition, planner, tool registry, and action verification.
+13. Add confirmation and permission boundaries for external or destructive actions.
+14. Begin computer-agent capabilities, followed by voice and OS/device integrations.
+
+## 11. Definition of success
+
+A.I.R.A.’s current milestone is complete when it can:
+
+```text
+Understand a conversation
+    ↓
+Extract only durable candidate facts
+    ↓
+Reject weak or malformed facts
+    ↓
+Store trusted memories without damaging stronger memories
+    ↓
+Detect and manage duplicates safely
+    ↓
+Retrieve relevant memories with defensible ranking
+    ↓
+Supply bounded, useful context to the LLM
+    ↓
+Pass a full integration and runtime audit
+```
+
+That milestone is the trustworthy foundation for the later **Chief Agent**, **Computer Agent**, and **Personal AI OS** phases.

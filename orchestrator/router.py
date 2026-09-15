@@ -7,6 +7,9 @@ class Intent(Enum):
     MEMORY = "memory"
     RESEARCH = "research"
     CODING = "coding"
+    DEBUG = "debug"
+    PLAN = "plan"
+    TEST = "test"
     SYSTEM = "system"
 
 
@@ -44,12 +47,33 @@ def classify_intent(user_input: str) -> Intent:
     if any(keyword in text for keyword in memory_keywords):
         return Intent.MEMORY
 
+    plan_keywords = ["plan", "roadmap", "steps", "approach", "strategy"]
+    if any(keyword in text for keyword in plan_keywords):
+        return Intent.PLAN
+
+    # Debugging
+    debug_keywords = [
+        "debug",
+        "traceback",
+        "test failure",
+        "failing test",
+        "not starting",
+        "crash",
+        "broken",
+    ]
+
+    if any(keyword in text for keyword in debug_keywords):
+        return Intent.DEBUG
+
+    test_keywords = ["run tests", "test the project", "pytest", "unit test", "test suite"]
+    if any(keyword in text for keyword in test_keywords):
+        return Intent.TEST
+
     # Coding
     coding_keywords = [
         "python",
         "code",
         "program",
-        "debug",
         "function",
         "class",
         "api",

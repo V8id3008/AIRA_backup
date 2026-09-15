@@ -10,7 +10,11 @@ class ContextBuilder:
     def build(self, user_input: str) -> str:
 
         profile = load_profile()
-        memories = get_relevant_memories(user_input, limit=5)
+        memory_limit = 5
+        memories = get_relevant_memories(
+            user_input,
+            limit=memory_limit
+        )
 
         sections = []
 
@@ -41,7 +45,8 @@ class ContextBuilder:
         hardware = profile.get("hardware", {})
         if hardware:
             for key, value in hardware.items():
-                sections.append(f"{key.upper()}: {value}")
+                if value:
+                    sections.append(f"{key.upper()}: {value}")
 
         # ---------------- Memories ---------------- #
 
@@ -55,4 +60,4 @@ class ContextBuilder:
 
         sections.append("============================")
 
-        return "\n".join(sections)
+        return "\n".join(sections).strip()

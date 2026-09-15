@@ -5,6 +5,8 @@
     ],
     "goals": [],
     "preferences": [
+        "User prefers using Python for coding projects.",
+        "The user is using Python and has expressed a preference for using the pip package manager to manage dependencies.",
         "using Python and has expressed a preference for using the pip package manager to manage dependencies."
     ],
     "skills": [],
